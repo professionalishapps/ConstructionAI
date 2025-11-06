@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Construction Risk Monitor — MVP</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 24px; }
+    .card { border: 1px solid #ddd; padding: 16px; border-radius: 6px; max-width: 800px; }
+    .title { font-size: 20px; margin-bottom: 8px; }
+    .meta { color: #555; margin-bottom: 8px; }
+    .metrics { display:flex; gap:12px; }
+    .metric { padding:8px; background:#f7f7f7; border-radius:4px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="title">Construction Risk Monitor — MVP</div>
+    <div id="projectName" class="meta">Loading project...</div>
+    <div id="projectSummary"></div>
+    <div style="height:12px"></div>
+    <div class="metrics">
+      <div class="metric">SPI: <span id="spi">-</span></div>
+      <div class="metric">CPI: <span id="cpi">-</span></div>
+      <div class="metric">Completion: <span id="pct">-</span>%</div>
+    </div>
+    <div style="height:12px"></div>
+    <div id="raw"></div>
+  </div>
+
+  <script>
+    async function refresh(){
+      try{
+        const r = await fetch('/api/projects/current');
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        const j = await r.json();
+        const p = j.project;
+        const m = j.latest_metric;
+        document.getElementById('projectName').textContent = p ? p.name : 'No project';
+        document.getElementById('projectSummary').textContent = p ? (p.type + ' • ' + (p.location ? (p.location.lat+','+p.location.lon) : '')) : '';
+        document.getElementById('spi').textContent = m?.spi ?? 'N/A';
+        document.getElementById('cpi').textContent = m?.cpi ?? 'N/A';
+        document.getElementById('pct').textContent = p?.current_completion_pct ?? 'N/A';
+        document.getElementById('raw').textContent = JSON.stringify(j, null, 2);
+      }catch(e){
+        document.getElementById('projectName').textContent = 'Error: '+e.message;
+      }
+    }
+    refresh();
+    setInterval(refresh, 5000);
+  </script>
+</body>
+</html>
