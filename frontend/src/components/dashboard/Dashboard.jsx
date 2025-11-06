@@ -4,9 +4,9 @@ import RiskScoreCard from './RiskScoreCard';
 import ProjectTimeline from './ProjectTimeline';
 import BudgetTracker from './BudgetTracker';
 import WeatherImpact from './WeatherImpact';
-import SubcontractorScore from './SubcontractorScore';
-import InterventionPanel from './InterventionPanel';
-import AgentFlow from './AgentFlow';
+import SubcontractorScore from '../agents/SubcontractorScore';
+import InterventionPanel from '../agents/InterventionPanel';
+import AgentFlow from '../agents/AgentFlow';
 
 function Dashboard() {
   const [projectData, setProjectData] = useState(null);
@@ -15,7 +15,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/projects/current');
+        const response = await fetch('http://localhost:8000/api/v1/projects/current');
         const data = await response.json();
         setProjectData(data);
         setLoading(false);
