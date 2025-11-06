@@ -13,8 +13,5 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom', '@emotion/react', '@emotion/styled']
   }
 })
