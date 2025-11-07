@@ -184,17 +184,26 @@ class AgentOrchestrator:
         print("  → Agent 3: Subcontractor Performance Monitor")
         
         try:
-            # Use sample data
+            # Get real subcontractor data from project
+            subcontractor_data = data.get('subcontractor', {})
+            
             schedule_score, msg = subcontractor_score.calculate_schedule_score(
-                planned_days=30, actual_days=34, critical_path=True
+                planned_days=subcontractor_data.get('planned_days', 30),
+                actual_days=subcontractor_data.get('actual_days', 34),
+                critical_path=subcontractor_data.get('critical_path', True)
             )
             
             quality_score, quality_obs = subcontractor_score.calculate_quality_score(
-                defects=2, rework_hours=8.5, inspections_passed=4, inspections_total=5
+                defects=subcontractor_data.get('defects', 2),
+                rework_hours=subcontractor_data.get('rework_hours', 8.5),
+                inspections_passed=subcontractor_data.get('inspections_passed', 4),
+                inspections_total=subcontractor_data.get('inspections_total', 5)
             )
             
             safety_score, safety_obs = subcontractor_score.calculate_safety_score(
-                incidents=0, near_misses=1, safety_observations=3
+                incidents=subcontractor_data.get('incidents', 0),
+                near_misses=subcontractor_data.get('near_misses', 1),
+                safety_observations=subcontractor_data.get('safety_observations', 3)
             )
             
             scores = {
@@ -256,14 +265,21 @@ class AgentOrchestrator:
         print("  → Agent 5: Supply Chain Disruption Detector")
         
         try:
-            # Sample data
-            materials = [
+            # Get real materials and supplier data from project
+            supply_chain_data = data.get('supply_chain', {})
+            materials = supply_chain_data.get('materials', [
                 {'name': 'Rebar Steel', 'lead_time_days': 21, 'stock_level': 15, 'critical': True},
                 {'name': 'Concrete', 'lead_time_days': 3, 'stock_level': 80, 'critical': True},
-            ]
+            ])
             
             at_risk, risk_score = supply_chain.detect_material_shortages(materials)
-            score, assessment = supply_chain.calculate_supplier_reliability(18, 20, 2)
+            
+            supplier_data = supply_chain_data.get('supplier_performance', {})
+            score, assessment = supply_chain.calculate_supplier_reliability(
+                on_time_deliveries=supplier_data.get('on_time_deliveries', 18),
+                total_deliveries=supplier_data.get('total_deliveries', 20),
+                lead_time_extensions=supplier_data.get('lead_time_extensions', 2)
+            )
             
             self.agent_results['agent_5_supply_chain'] = {
                 'at_risk_materials': at_risk,
@@ -286,11 +302,11 @@ class AgentOrchestrator:
         try:
             budget = data.get('budget', {}).get('total', 15000000)
             
-            # Sample change orders
-            change_orders = [
+            # Get real change orders from project
+            change_orders = data.get('change_orders', [
                 {'category': 'Design Change', 'amount': 50000, 'initiated_by': 'Owner', 'date': '2025-02-15'},
                 {'category': 'Owner Request', 'amount': 75000, 'initiated_by': 'Owner', 'date': '2025-05-20'},
-            ]
+            ])
             
             total_co_value = sum(co['amount'] for co in change_orders)
             co_rate, assessment = change_order.calculate_change_order_rate(total_co_value, budget)
@@ -324,14 +340,25 @@ class AgentOrchestrator:
         print("  → Agent 7: Productivity Trend Tracker")
         
         try:
-            rate, rate_str = productivity.calculate_productivity_rate(450, 180, "sq ft")
-            index, assessment = productivity.compare_to_benchmark(rate, 3.0)
+            # Get real productivity data from project
+            productivity_data = data.get('productivity', {})
             
-            historical = [
+            rate, rate_str = productivity.calculate_productivity_rate(
+                units_completed=productivity_data.get('units_completed', 450),
+                labor_hours=productivity_data.get('labor_hours', 180),
+                unit_type=productivity_data.get('unit_type', 'sq ft')
+            )
+            
+            index, assessment = productivity.compare_to_benchmark(
+                actual_rate=rate,
+                benchmark_rate=productivity_data.get('benchmark_rate', 3.0)
+            )
+            
+            historical = productivity_data.get('historical_rates', [
                 {'date': '2025-01-01', 'rate': 3.2},
                 {'date': '2025-01-08', 'rate': 3.0},
                 {'date': '2025-01-15', 'rate': 2.8},
-            ]
+            ])
             
             decline, observations = productivity.detect_productivity_decline(historical)
             risk_score, risk_level = productivity.calculate_productivity_risk_score(
@@ -357,14 +384,27 @@ class AgentOrchestrator:
         print("  → Agent 8: Quality Issue Detector")
         
         try:
-            prob, level = quality.calculate_rework_probability(4, 2, 10, 15)
+            # Get real quality data from project
+            quality_data = data.get('quality', {})
             
-            defects = [
+            prob, level = quality.calculate_rework_probability(
+                open_defects=quality_data.get('open_defects', 4),
+                recent_failures=quality_data.get('recent_failures', 2),
+                inspection_pass_rate=quality_data.get('inspection_pass_rate', 10),
+                historical_rework_rate=quality_data.get('historical_rework_rate', 15)
+            )
+            
+            defects = quality_data.get('defects', [
                 {'severity': 'Major', 'category': 'Concrete', 'cost_estimate': 5000},
-            ]
+            ])
             
             analysis = quality.analyze_defect_severity(defects)
-            risk_score, risk_level = quality.calculate_quality_risk_score(prob, 4, 80, 0.5)
+            risk_score, risk_level = quality.calculate_quality_risk_score(
+                rework_probability=prob,
+                open_defects=quality_data.get('open_defects', 4),
+                inspection_pass_rate=quality_data.get('inspection_pass_rate', 80),
+                defect_density=quality_data.get('defect_density', 0.5)
+            )
             
             self.agent_results['agent_8_quality'] = {
                 'rework_probability': prob,
@@ -385,12 +425,20 @@ class AgentOrchestrator:
         print("  → Agent 9: Progress Analyzer")
         
         try:
+            # Get real progress data from project
+            progress_data = data.get('progress', {})
+            schedule_data = data.get('schedule', {})
+            
+            reported_pct = schedule_data.get('actual_pct_complete', 75.0)
+            
             visual_pct, confidence = progress_analyzer.simulate_visual_progress_assessment(
-                8, "framing", 75.0
+                photo_count=progress_data.get('photo_count', 8),
+                activity_type=progress_data.get('activity_type', 'framing'),
+                reported_pct_complete=reported_pct
             )
             
             discrepancy, variance, status = progress_analyzer.detect_progress_discrepancy(
-                visual_pct, 75.0
+                visual_pct, reported_pct
             )
             
             risk_score, risk_level = progress_analyzer.calculate_progress_verification_risk(
@@ -417,11 +465,15 @@ class AgentOrchestrator:
         print("  → Agent 10: Cash Flow Projector")
         
         try:
-            current_cash = 500_000
-            daily_costs = [45_000, 50_000, 40_000]
-            payments = []
+            # Get real cash flow data from project
+            cash_flow_data = data.get('cash_flow', {})
             
-            projections = cash_flow.project_cash_position(current_cash, daily_costs, payments, 90)
+            current_cash = cash_flow_data.get('current_balance', 500_000)
+            daily_costs = cash_flow_data.get('recent_daily_costs', [45_000, 50_000, 40_000])
+            payments = cash_flow_data.get('expected_payments', [])
+            projection_days = cash_flow_data.get('projection_days', 90)
+            
+            projections = cash_flow.project_cash_position(current_cash, daily_costs, payments, projection_days)
             shortfalls = cash_flow.identify_cash_shortfalls(projections, 100_000)
             analysis = cash_flow.analyze_cash_flow_patterns(projections)
             
