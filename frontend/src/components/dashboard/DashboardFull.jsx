@@ -229,8 +229,122 @@ function DashboardFull() {
             </Paper>
           </Grid>
 
+          {/* Project Summary */}
+          <Grid item xs={12} md={6}>
+            <Paper sx={{ p: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                📋 Project Summary
+              </Typography>
+              
+              {/* Overall Health Status */}
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                  Overall Health Status
+                </Typography>
+                <Chip 
+                  label={analysisResults.mitigation?.overall_health || 'UNKNOWN'}
+                  color={
+                    analysisResults.mitigation?.overall_health === 'GREEN' ? 'success' :
+                    analysisResults.mitigation?.overall_health === 'YELLOW' ? 'warning' :
+                    analysisResults.mitigation?.overall_health === 'RED' ? 'error' : 'default'
+                  }
+                  sx={{ fontSize: '1rem', fontWeight: 'bold' }}
+                />
+              </Box>
+
+              {/* Schedule Performance */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                  Schedule Performance
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <Typography variant="body2">SPI (Schedule Performance Index)</Typography>
+                    <Typography variant="h6" color={
+                      analysisResults.schedule?.spi >= 1.0 ? 'success.main' :
+                      analysisResults.schedule?.spi >= 0.95 ? 'warning.main' : 'error.main'
+                    }>
+                      {analysisResults.schedule?.spi?.toFixed(3) || 'N/A'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2">Schedule Status</Typography>
+                    <Typography variant="h6" color={
+                      analysisResults.schedule?.days_behind === 0 ? 'success.main' :
+                      analysisResults.schedule?.days_behind > 0 ? 'error.main' : 'success.main'
+                    }>
+                      {analysisResults.schedule?.days_behind > 0 ? 
+                        `${analysisResults.schedule.days_behind} days behind` :
+                        analysisResults.schedule?.days_ahead > 0 ?
+                        `${analysisResults.schedule.days_ahead} days ahead` :
+                        'On Schedule'
+                      }
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Cost Performance */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                  Cost Performance
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <Typography variant="body2">CPI (Cost Performance Index)</Typography>
+                    <Typography variant="h6" color={
+                      analysisResults.cost?.cpi >= 1.0 ? 'success.main' :
+                      analysisResults.cost?.cpi >= 0.95 ? 'warning.main' : 'error.main'
+                    }>
+                      {analysisResults.cost?.cpi?.toFixed(3) || 'N/A'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="body2">Cost Variance</Typography>
+                    <Typography variant="h6" color={
+                      analysisResults.cost?.cost_variance >= 0 ? 'success.main' : 'error.main'
+                    }>
+                      ${Math.abs(analysisResults.cost?.cost_variance || 0).toLocaleString()}
+                      {analysisResults.cost?.cost_variance < 0 ? ' over' : ' under'}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Top Risk Factors */}
+              <Box sx={{ mb: 2 }}>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                  Top Risk Factors
+                </Typography>
+                {analysisResults.mitigation?.top_risks?.slice(0, 3).map((risk, idx) => (
+                  <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="body2">{risk.factor}</Typography>
+                    <Chip 
+                      label={`${risk.score}/100`}
+                      size="small"
+                      color={risk.score > 70 ? 'error' : risk.score > 40 ? 'warning' : 'success'}
+                    />
+                  </Box>
+                )) || <Typography variant="body2" color="text.secondary">No significant risks</Typography>}
+              </Box>
+
+              {/* Forecast Summary */}
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                  Project Forecasts
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Completion Date:</strong> {analysisResults.completion_forecast?.forecast_date || 'N/A'}
+                </Typography>
+                <Typography variant="body2">
+                  <strong>Final Cost (EAC):</strong> ${analysisResults.cost_forecast?.forecast_final_cost?.toLocaleString() || 'N/A'}
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+
           {/* AI Recommendations */}
-          <Grid item xs={12}>
+          <Grid item xs={12} md={6}>
             <Paper sx={{ p: 3 }}>
               <Typography variant="h6" gutterBottom>
                 🤖 AI-Generated Recommendations
